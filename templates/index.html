@@ -2,9 +2,20 @@
 <html>
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Welcome</title>
+    <title>Vision Map</title>
   </head>
   <body>
     <p>hello world!</p>
+    <div>
+      <form method=post action="" enctype="multipart/form-data">
+        <input type=submit value='Upload' name='submit'>
+      </form>
+    </div>
+    <div>
+      <img src="data:image/jpg;base64,{{ img_base64 }}" style="max-width: 30%">
+    </div>
+    <div>
+      Description: {{ description }}
+    </div>
   </body>
 </html>
