@@ -19,4 +19,11 @@ def main():
     vision_client = vision.Client()
     landmarks = vision_client.image(content=img).detect_landmarks()
     logging.debug(landmarks[0].description)
-    return flask.render_template("index.html", img_base64=img_base64, description=landmarks[0].description)
+    res = flask.render_template(
+        "index.html",
+        img_base64=img_base64,
+        description=landmarks[0].description,
+        latitude=landmarks[0].locations[0].latitude,
+        longitude=landmarks[0].locations[0].longitude
+    )
+    return res
