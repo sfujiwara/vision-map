@@ -10,20 +10,34 @@ from google.cloud import vision
 app = flask.Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def main():
-    with gcs.open("/vision-map-mynavi.appspot.com/img/IMG_5861o.jpg") as f:
+    if flask.request.method == "POST" and flask.request.files["file"]:
+        logging.debug("use uploaded image")
+        f = flask.request.files["file"]
         img = f.read()
-        img_base64 = base64.b64encode(img)
+    else:
+        logging.debug("use default image")
+        with gcs.open("/vision-map-mynavi.appspot.com/img/DSC00776o.jpg") as f:
+            img = f.read()
+    img_base64 = base64.b64encode(img)
     # Detect landmarks with Cloud Vision API
     vision_client = vision.Client()
     landmarks = vision_client.image(content=img).detect_landmarks()
-    logging.debug(landmarks[0].description)
-    res = flask.render_template(
-        "index.html",
-        img_base64=img_base64,
-        description=landmarks[0].description,
-        latitude=landmarks[0].locations[0].latitude,
-        longitude=landmarks[0].locations[0].longitude
-    )
+    if landmarks:
+        res = flask.render_template(
+            "index.html",
+            img_base64=img_base64,
+            description=landmarks[0].description,
+            latitude=landmarks[0].locations[0].latitude,
+            longitude=landmarks[0].locations[0].longitude
+        )
+    else:
+        res = flask.render_template(
+            "index.html",
+            img_base64=img_base64,
+            description="",
+            latitude=None,
+            longitude=None
+        )
     return res
