@@ -5,7 +5,7 @@ import logging
 
 import flask
 import cloudstorage as gcs
-from google.cloud import vision
+from google.cloud import vision, translate
 
 app = flask.Flask(__name__)
 
@@ -25,10 +25,21 @@ def main():
     vision_client = vision.Client()
     landmarks = vision_client.image(content=img).detect_landmarks()
     if landmarks:
+        translate_client = translate.Client()
+        translate_result = translate_client.translate(
+            landmarks[0].description,
+            target_language="ja",
+            source_language="en"
+        )
+        translated_text = translate_result["translatedText"]
+        logging.debug(translate_result)
+        logging.debug(translated_text)
+        logging.debug(landmarks[0].description)
         res = flask.render_template(
             "index.html",
             img_base64=img_base64,
             description=landmarks[0].description,
+            description_ja=translated_text,
             latitude=landmarks[0].locations[0].latitude,
             longitude=landmarks[0].locations[0].longitude
         )
@@ -37,6 +48,7 @@ def main():
             "index.html",
             img_base64=img_base64,
             description="",
+            description_ja="",
             latitude=None,
             longitude=None
         )
